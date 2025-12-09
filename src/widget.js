@@ -169,8 +169,8 @@
     }
 
     function updateStepData(stepId, action) {
-      client.mutation("steps:updateStats", { step_id: stepId, action });
-      console.log(`Step ${stepId} ${action} +1`);
+      client.mutation("steps:updateStats", { stepId, action });
+    //   console.log(`Step ${stepId} ${action} +1`);
     }
 
     function endTour() {

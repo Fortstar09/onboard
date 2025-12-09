@@ -39,9 +39,9 @@ export const updateStats = mutation(async ({ db }, { stepId, action }) => {
   if (action === "completed") update.completed = (step.completed || 0) + 1;
   if (action === "skipped") update.skipped = (step.skipped || 0) + 1;
 
-  await db.patch(step.id, update);
+  await db.patch(step._id, update);
 
-  console.log(`[updateStats] Updated step ${stepId}:`, update);
+//   console.log(`[updateStats] Updated step ${stepId}:`, update);
 
   // Return updated stats
   return { success: true, updated: update };
