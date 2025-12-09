@@ -1,6 +1,6 @@
 // convex/steps.ts
 import { v } from "convex/values";
-import { query} from "./_generated/server";
+import { query, mutation} from "./_generated/server";
 
 // Query: Get all steps
 export const get = query({
@@ -19,4 +19,20 @@ export const getByTourId = query({
       .filter(q => q.eq(q.field("tour_id"), tour_id))
       .collect();
   },
+});
+
+export const updateStats = mutation(async ({ db }, { stepId, action }) => {
+  // Find the step by your custom "id" field
+  const steps = await db.query("steps").filter(q => q.eq(q.field("id"), stepId)).collect();
+  const step = steps[0];
+  if (!step) return;
+
+  const update = {};
+
+  if (action === "started") update.started = (step.started || 0) + 1;
+  if (action === "completed") update.completed = (step.completed || 0) + 1;
+  if (action === "skipped") update.skipped = (step.skipped || 0) + 1;
+
+  // ✅ Use Convex internal _id to patch
+  await db.patch(step._id, update);
 });
