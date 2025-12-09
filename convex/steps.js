@@ -23,9 +23,15 @@ export const getByTourId = query({
 
 export const updateStats = mutation(async ({ db }, { stepId, action }) => {
   // Find the step by your custom "id" field
-  const steps = await db.query("steps").filter(q => q.eq(q.field("id"), stepId)).collect();
-  const step = steps[0];
-  if (!step) return;
+  const step = await db
+    .query("steps")
+    .filter(q => q.eq(q.field("id"), stepId))
+    .first();
+
+  if (!step) {
+    console.log(`[updateStats] Step not found: ${stepId}`);
+    return { success: false, message: "Step not found" };
+  }
 
   const update = {};
 
@@ -33,6 +39,10 @@ export const updateStats = mutation(async ({ db }, { stepId, action }) => {
   if (action === "completed") update.completed = (step.completed || 0) + 1;
   if (action === "skipped") update.skipped = (step.skipped || 0) + 1;
 
-  // ✅ Use Convex internal _id to patch
-  await db.patch(step._id, update);
+  await db.patch(step.id, update);
+
+  console.log(`[updateStats] Updated step ${stepId}:`, update);
+
+  // Return updated stats
+  return { success: true, updated: update };
 });

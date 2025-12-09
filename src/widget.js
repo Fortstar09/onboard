@@ -2,9 +2,9 @@
   if (window.InitTour) return;
 
   function globalCleanup() {
-    document.querySelectorAll(".tour-tooltip").forEach(t => t.remove());
-    document.querySelectorAll(".tour-overlay").forEach(o => o.remove());
-    document.querySelectorAll(".tour-highlight").forEach(h => {
+    document.querySelectorAll(".tour-tooltip").forEach((t) => t.remove());
+    document.querySelectorAll(".tour-overlay").forEach((o) => o.remove());
+    document.querySelectorAll(".tour-highlight").forEach((h) => {
       h.style.outline = "";
       h.classList.remove("tour-highlight");
     });
@@ -22,13 +22,18 @@
   document.head.appendChild(style);
 
   function $(sel, root = document) {
-    try { return root.querySelector(sel); } catch { return null; }
+    try {
+      return root.querySelector(sel);
+    } catch {
+      return null;
+    }
   }
 
   window.InitTour = async function (opts = {}) {
     globalCleanup();
 
-    const tourId = opts.tour_id || document.currentScript?.getAttribute("data") || "tour_1";
+    const tourId =
+      opts.tour_id || document.currentScript?.getAttribute("data") || "tour_1";
     const CONVEX_URL = "https://kindhearted-cod-355.convex.cloud";
     const client = new convex.ConvexClient(CONVEX_URL);
 
@@ -50,7 +55,10 @@
     loading.remove();
     if (!steps.length) return;
 
-    let idx = 0, overlay = null, tooltip = null, highlighted = null;
+    let idx = 0,
+      overlay = null,
+      tooltip = null,
+      highlighted = null;
 
     function createOverlay() {
       overlay = document.createElement("div");
@@ -59,58 +67,154 @@
       document.body.appendChild(overlay);
     }
 
-    function removeOverlay() { if (overlay) overlay.remove(); overlay = null; }
-    function escapeHtml(s) { return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+    function removeOverlay() {
+      if (overlay) overlay.remove();
+      overlay = null;
+    }
+    function escapeHtml(s) {
+      return String(s || "").replace(
+        /[&<>"']/g,
+        (c) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          }[c])
+      );
+    }
 
     function positionTooltip(target, tip, preferred) {
-      const pad=12,vw=window.innerWidth,vh=window.innerHeight,scrollY=window.scrollY,scrollX=window.scrollX;
-      if(!target){tip.style.left=Math.round((vw-tip.offsetWidth)/2)+"px";tip.style.top=Math.round(scrollY+vh*0.12)+"px";return;}
-      const r=target.getBoundingClientRect();
-      const positions=preferred==="top"?["top","bottom","right","left"]:["bottom","top","right","left"];
-      for(const pos of positions){
-        if(pos==="bottom"){let top=r.bottom+pad+scrollY,left=Math.min(Math.max(r.left+scrollX,8),vw-tip.offsetWidth-8);if(top+tip.offsetHeight<=scrollY+vh){tip.style.top=top+"px";tip.style.left=left+"px";return;}}
-        if(pos==="top"){let top=r.top-tip.offsetHeight-pad+scrollY,left=Math.min(Math.max(r.left+scrollX,8),vw-tip.offsetWidth-8);if(top>=scrollY){tip.style.top=top+"px";tip.style.left=left+"px";return;}}
-        if(pos==="right"){let left=r.right+pad+scrollX,top=Math.min(Math.max(r.top+scrollY,scrollY+8),scrollY+vh-tip.offsetHeight-8);if(left+tip.offsetWidth<=scrollX+vw){tip.style.left=left+"px";tip.style.top=top+"px";return;}}
-        if(pos==="left"){let left=r.left-tip.offsetWidth-pad+scrollX,top=Math.min(Math.max(r.top+scrollY,scrollY+8),scrollY+vh-tip.offsetHeight-8);if(left>=scrollX){tip.style.left=left+"px";tip.style.top=top+"px";return;}}
+      const pad = 12,
+        vw = window.innerWidth,
+        vh = window.innerHeight,
+        scrollY = window.scrollY,
+        scrollX = window.scrollX;
+      if (!target) {
+        tip.style.left = Math.round((vw - tip.offsetWidth) / 2) + "px";
+        tip.style.top = Math.round(scrollY + vh * 0.12) + "px";
+        return;
       }
-      tip.style.left=Math.round((vw-tip.offsetWidth)/2+scrollX)+"px";
-      tip.style.top=Math.round(scrollY+vh*0.12)+"px";
+      const r = target.getBoundingClientRect();
+      const positions =
+        preferred === "top"
+          ? ["top", "bottom", "right", "left"]
+          : ["bottom", "top", "right", "left"];
+      for (const pos of positions) {
+        if (pos === "bottom") {
+          let top = r.bottom + pad + scrollY,
+            left = Math.min(
+              Math.max(r.left + scrollX, 8),
+              vw - tip.offsetWidth - 8
+            );
+          if (top + tip.offsetHeight <= scrollY + vh) {
+            tip.style.top = top + "px";
+            tip.style.left = left + "px";
+            return;
+          }
+        }
+        if (pos === "top") {
+          let top = r.top - tip.offsetHeight - pad + scrollY,
+            left = Math.min(
+              Math.max(r.left + scrollX, 8),
+              vw - tip.offsetWidth - 8
+            );
+          if (top >= scrollY) {
+            tip.style.top = top + "px";
+            tip.style.left = left + "px";
+            return;
+          }
+        }
+        if (pos === "right") {
+          let left = r.right + pad + scrollX,
+            top = Math.min(
+              Math.max(r.top + scrollY, scrollY + 8),
+              scrollY + vh - tip.offsetHeight - 8
+            );
+          if (left + tip.offsetWidth <= scrollX + vw) {
+            tip.style.left = left + "px";
+            tip.style.top = top + "px";
+            return;
+          }
+        }
+        if (pos === "left") {
+          let left = r.left - tip.offsetWidth - pad + scrollX,
+            top = Math.min(
+              Math.max(r.top + scrollY, scrollY + 8),
+              scrollY + vh - tip.offsetHeight - 8
+            );
+          if (left >= scrollX) {
+            tip.style.left = left + "px";
+            tip.style.top = top + "px";
+            return;
+          }
+        }
+      }
+      tip.style.left = Math.round((vw - tip.offsetWidth) / 2 + scrollX) + "px";
+      tip.style.top = Math.round(scrollY + vh * 0.12) + "px";
     }
 
     function cleanupTooltip() {
-      if (tooltip){tooltip.removeEventListener("click", onTooltipClick); tooltip.remove(); tooltip=null;}
-      if(highlighted){highlighted.style.outline=""; highlighted.classList.remove("tour-highlight"); highlighted=null;}
+      if (tooltip) {
+        tooltip.removeEventListener("click", onTooltipClick);
+        tooltip.remove();
+        tooltip = null;
+      }
+      if (highlighted) {
+        highlighted.style.outline = "";
+        highlighted.classList.remove("tour-highlight");
+        highlighted = null;
+      }
     }
 
-    function updateStepData(stepId, action){
+    function updateStepData(stepId, action) {
       client.mutation("steps:updateStats", { step_id: stepId, action });
+      console.log(`Step ${stepId} ${action} +1`);
     }
 
-    function endTour() { cleanupTooltip(); removeOverlay(); window.dispatchEvent(new CustomEvent("tour-ended")); }
+    function endTour() {
+      cleanupTooltip();
+      removeOverlay();
+      window.dispatchEvent(new CustomEvent("tour-ended"));
+    }
 
     function showStep(i) {
       cleanupTooltip();
       const step = steps[i];
-      if(!step) return endTour();
+      if (!step) return endTour();
 
       // increment started when step shows
       updateStepData(step.id, "started");
 
       const el = step.selector ? $(step.selector) : null;
-      if(!el && step.selector){idx=i+1; return showStep(idx);}
+      if (!el && step.selector) {
+        idx = i + 1;
+        return showStep(idx);
+      }
 
       const outlineColor = step.highlight_color || "rgba(255,255,0,0.85)";
-      if(el){highlighted=el; el.classList.add("tour-highlight"); el.style.outline=`3px solid ${outlineColor}`; el.scrollIntoView({behavior:"smooth",block:"center"});}
+      if (el) {
+        highlighted = el;
+        el.classList.add("tour-highlight");
+        el.style.outline = `3px solid ${outlineColor}`;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
 
-      tooltip=document.createElement("div");
-      tooltip.className="tour-tooltip";
-      tooltip.style.background=step.bg_color||"#fff";
-      tooltip.style.color=step.text_color||"#111";
-      const nextText=step.button_text && step.button_text.trim()?step.button_text:i===steps.length-1?"Finish":"Next";
-      tooltip.innerHTML=`
+      tooltip = document.createElement("div");
+      tooltip.className = "tour-tooltip";
+      tooltip.style.background = step.bg_color || "#fff";
+      tooltip.style.color = step.text_color || "#111";
+      const nextText =
+        step.button_text && step.button_text.trim()
+          ? step.button_text
+          : i === steps.length - 1
+          ? "Finish"
+          : "Next";
+      tooltip.innerHTML = `
         <div class="tour-body">
-          ${step.title?`<strong>${escapeHtml(step.title)}</strong><br>`:""}
-          ${escapeHtml(step.description||"")}
+          ${step.title ? `<strong>${escapeHtml(step.title)}</strong><br>` : ""}
+          ${escapeHtml(step.description || "")}
         </div>
         <div class="controls">
           <button data-action="back">Back</button>
@@ -119,29 +223,49 @@
         </div>
       `;
       document.body.appendChild(tooltip);
-      positionTooltip(el, tooltip, step.position||"bottom");
+      positionTooltip(el, tooltip, step.position || "bottom");
       tooltip.addEventListener("click", onTooltipClick);
     }
 
-    function onTooltipClick(e){
-      const btn=e.target.closest("button[data-action]");
-      if(!btn) return;
-      const a=btn.getAttribute("data-action");
-      const step=steps[idx];
+    function onTooltipClick(e) {
+      const btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+      const a = btn.getAttribute("data-action");
+      const step = steps[idx];
 
-      if(a==="next"){updateStepData(step.id,"completed"); idx++; if(idx>=steps.length) return endTour(); showStep(idx);}
-      if(a==="back"){idx=Math.max(0,idx-1); showStep(idx);}
-      if(a==="skip"){updateStepData(step.id,"skipped"); return endTour();}
+      if (a === "next") {
+        updateStepData(step.id, "completed");
+        idx++;
+        if (idx >= steps.length) return endTour();
+        showStep(idx);
+      }
+      if (a === "back") {
+        idx = Math.max(0, idx - 1);
+        showStep(idx);
+      }
+      if (a === "skip") {
+        updateStepData(step.id, "skipped");
+        return endTour();
+      }
     }
 
     createOverlay();
     showStep(idx);
 
     return {
-      next:()=>{idx++; showStep(idx);},
-      back:()=>{idx=Math.max(0,idx-1); showStep(idx);},
-      end:endTour,
-      goTo:(n)=>{idx=Math.max(0,Math.min(n,steps.length-1)); showStep(n);}
+      next: () => {
+        idx++;
+        showStep(idx);
+      },
+      back: () => {
+        idx = Math.max(0, idx - 1);
+        showStep(idx);
+      },
+      end: endTour,
+      goTo: (n) => {
+        idx = Math.max(0, Math.min(n, steps.length - 1));
+        showStep(n);
+      },
     };
   };
 })();
